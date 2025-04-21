@@ -1,0 +1,92 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, dom, fileinfo, mysql, gd
+        coverage: none
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install Composer Dependencies
+      run: composer install --prefer-dist --no-interaction --no-progress --no-dev
+    
+    - name: Install NPM Dependencies
+      run: npm ci
+    
+    - name: Build Frontend Assets
+      run: npm run build
+    
+    - name: Configure Laravel
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+    
+    - name: Create Build Artifacts
+      run: |
+        mkdir -p build-artifacts
+        tar -czf build-artifacts/app.tar.gz --exclude=node_modules --exclude=.git --exclude=build-artifacts .
+    
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: build-artifacts/app.tar.gz
+    
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
+    
+    - name: Extract Build Artifacts
+      run: |
+        mkdir -p app
+        tar -xzf app.tar.gz -C app
+    
+    - name: Setup SSH Agent
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    
+    - name: Add server to known hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -p ${{ secrets.SSH_PORT || 22 }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+    
+    - name: Copy files to VPS
+      run: |
+        rsync -avz --exclude 'node_modules' --exclude 'vendor' --exclude '.git' \
+        -e "ssh -p ${{ secrets.SSH_PORT || 22 }}" \
+        ./app/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/var/www/app/
+    
+    - name: Deploy with Docker
+      run: |
+        ssh -p ${{ secrets.SSH_PORT || 22 }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "cd /var/www/app && \
+        docker-compose down --remove-orphans && \
+        docker-compose pull && \
+        docker-compose build --no-cache && \
+        docker-compose up -d && \
+        docker system prune -af --volumes"
