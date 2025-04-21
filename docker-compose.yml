@@ -40,7 +40,7 @@ services:
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     ports:
-      - "3306:3306"
+      - "3311:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
