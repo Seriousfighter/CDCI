@@ -3,7 +3,8 @@ FROM composer:2.6 as vendor
 
 WORKDIR /app
 
-COPY composer.json composer.lock ./
+# Copy everything needed for composer
+COPY . .
 
 RUN composer install \
     --no-interaction \
@@ -12,14 +13,19 @@ RUN composer install \
     --no-dev \
     --prefer-dist
 
+# Generate Ziggy routes file
+RUN php artisan ziggy:generate
+
 # Stage 2: Build frontend assets
 FROM node:18-alpine as frontend
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+# Copy necessary files including vendor directory
+COPY --from=vendor /app/vendor/ ./vendor/
+COPY package.json package-lock.json vite.config.js ./
 COPY resources/ ./resources/
-COPY vite.config.js ./
+COPY public/ ./public/
 
 RUN npm ci && npm run build
 
