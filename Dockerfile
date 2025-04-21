@@ -61,8 +61,8 @@ COPY --from=frontend /app/public/build ./public/build
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
 
-# Configure PHP
-COPY php.ini /usr/local/etc/php/conf.d/app.ini
+# Configure PHP - REMOVED THE PROBLEMATIC LINE
+# COPY php.ini /usr/local/etc/php/conf.d/app.ini
 
 EXPOSE 9000
 
