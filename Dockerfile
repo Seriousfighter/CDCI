@@ -64,6 +64,6 @@ RUN chown -R www-data:www-data /var/www/html \
 # Configure PHP - REMOVED THE PROBLEMATIC LINE
 # COPY php.ini /usr/local/etc/php/conf.d/app.ini
 
-EXPOSE 9000
+EXPOSE 9001
 
 CMD ["php-fpm"]
