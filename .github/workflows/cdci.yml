@@ -79,11 +79,11 @@ jobs:
       run: |
         rsync -avz --exclude 'node_modules' --exclude 'vendor' --exclude '.git' \
         -e "ssh -p ${{ secrets.SSH_PORT || 22 }}" \
-        ./app/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/var/www/app/
+        ./app/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/var/www/CDCI/
     
     - name: Deploy with Docker
       run: |
-        ssh -p ${{ secrets.SSH_PORT || 22 }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "cd /var/www/app && \
+        ssh -p ${{ secrets.SSH_PORT || 22 }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "cd /var/www/CDCI && \
         docker-compose down --remove-orphans && \
         docker-compose pull && \
         docker-compose build --no-cache && \
