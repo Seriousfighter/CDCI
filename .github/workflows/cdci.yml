@@ -84,9 +84,6 @@ jobs:
     - name: Deploy with Docker
       run: |
         ssh -p ${{ secrets.SSH_PORT || 22 }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "cd /var/www/cdci && \
-        echo 'DB_DATABASE=${{ secrets.DB_DATABASE }}' > .env && \
-        echo 'DB_USERNAME=${{ secrets.DB_USERNAME }}' >> .env && \
-        echo 'DB_PASSWORD=${{ secrets.DB_PASSWORD }}' >> .env && \
         docker rm -f cdci-app cdci-nginx cdci-mysql || true && \
         docker-compose down --remove-orphans && \
         docker-compose pull && \
