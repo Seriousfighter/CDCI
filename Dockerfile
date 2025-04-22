@@ -60,6 +60,9 @@ COPY --from=frontend /app/public/build ./public/build
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
 
+    # Create storage symlink
+RUN php artisan storage:link
+
 # Configure PHP - REMOVED THE PROBLEMATIC LINE
 # COPY php.ini /usr/local/etc/php/conf.d/app.ini
 
