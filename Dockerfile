@@ -51,10 +51,13 @@ RUN apk add --no-cache \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql zip gd
 
+COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 # Copy application files
 COPY . .
 COPY --from=vendor /app/vendor/ ./vendor/
 COPY --from=frontend /app/public/build ./public/build
+
+RUN if [ ! -d "vendor" ]; then composer install --no-interaction --no-dev --optimize-autoloader;
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
@@ -63,8 +66,6 @@ RUN chown -R www-data:www-data /var/www/html \
     # Create storage symlink
 RUN php artisan storage:link
 
-# Configure PHP - REMOVED THE PROBLEMATIC LINE
-# COPY php.ini /usr/local/etc/php/conf.d/app.ini
 
 EXPOSE 9000
 
