@@ -77,7 +77,7 @@ jobs:
     
     - name: Copy files to VPS
       run: |
-        rsync -avz --exclude 'node_modules' --exclude 'vendor' --exclude '.git' \
+        rsync -avz --exclude 'node_modules' --exclude 'vendor' --exclude '.git' --exclude '.env' \
         -e "ssh -p ${{ secrets.SSH_PORT || 22 }}" \
         ./app/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/var/www/cdci/
     
