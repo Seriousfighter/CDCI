@@ -57,7 +57,7 @@ COPY . .
 COPY --from=vendor /app/vendor/ ./vendor/
 COPY --from=frontend /app/public/build ./public/build
 
-RUN if [ ! -d "vendor" ]; then composer install --no-interaction --no-dev --optimize-autoloader;
+RUN if [ ! -d "vendor" ]; then composer install --no-interaction --no-dev --optimize-autoloader; fi
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
