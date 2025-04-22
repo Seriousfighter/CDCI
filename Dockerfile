@@ -13,8 +13,7 @@ RUN composer install \
     --no-dev \
     --prefer-dist
 
-# Generate Ziggy routes file
-RUN php artisan ziggy:generate
+
 
 # Stage 2: Build frontend assets
 FROM node:18-alpine as frontend
@@ -64,6 +63,6 @@ RUN chown -R www-data:www-data /var/www/html \
 # Configure PHP - REMOVED THE PROBLEMATIC LINE
 # COPY php.ini /usr/local/etc/php/conf.d/app.ini
 
-EXPOSE 9001
+EXPOSE 9000
 
 CMD ["php-fpm"]
