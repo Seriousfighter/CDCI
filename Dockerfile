@@ -59,9 +59,10 @@ COPY --from=frontend /app/public/build ./public/build
 
 RUN if [ ! -d "vendor" ]; then composer install --no-interaction --no-dev --optimize-autoloader; fi
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage
+# Set permissions esto no lo debo hacer aca proque sino github action no va a tener permisos
+# porque usa el ususario github
+#RUN chown -R www-data:www-data /var/www/html \
+#    && chmod -R 755 /var/www/html/storage
 
     # Create storage symlink
 RUN php artisan storage:link
